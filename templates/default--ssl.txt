@@ -1,0 +1,39 @@
+server {
+    server_name {domain};
+    listen 443 ssl;
+
+    location / {
+        root {root};
+        index index.html index.htm;
+    }
+
+    error_page 500 502 503 504 /50x.html;
+    location = /50x.html {
+        root {root};
+    }
+
+    ssl_certificate {sslDir}/live/{domain}/fullchain.pem;
+    ssl_certificate_key {sslDir}/live/{domain}/privkey.pem;
+    
+    ssl_session_cache shared:le_nginx_SSL:10m;
+    ssl_session_timeout 1440m;
+    ssl_session_tickets off;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+
+    ssl_ciphers "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384";
+
+    ssl_dhparam {sslDir}/dhparam.pem;
+}
+
+server {
+    server_name {domain};
+    listen 80;
+
+    if ($host = {domain}) {
+        return 301 https://$host$request_uri;
+    }
+
+    return 404;
+}
