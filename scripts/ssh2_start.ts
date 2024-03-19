@@ -1,13 +1,23 @@
-import { Server, utils } from "ssh2";
+import { getCommandArgValue } from "../utils/getCommandArgValue";
+import { Server, Session, utils } from "ssh2";
 import { timingSafeEqual } from "crypto";
 import chalk from "chalk";
 import net from "net";
 
-console.log(chalk.greenBright("Starting SSH2 server"));
 const keys = utils.generateKeyPairSync("ed25519");
-const allowedUser = Buffer.from("foo");
-const allowedPassword = Buffer.from("bar");
 const allowedPubKey = utils.parseKey(keys["public"]);
+const args = process.argv.slice(2);
+const port = Number(getCommandArgValue(args, "-p")) || 4444;
+const user = getCommandArgValue(args, "-u");
+
+if (!user) {
+	console.log(chalk.redBright("-u parameter is required"));
+	process.exit(1);
+}
+
+const [allowedUser, allowedPassword] = user?.split(":").map((i) => Buffer.from(i));
+
+console.log(chalk.greenBright("Starting SSH2 server"));
 
 if (allowedPubKey instanceof Error) {
 	throw new Error();
@@ -58,10 +68,11 @@ new Server(
 			})
 			.on("ready", () => {
 				console.log("Client authenticated!");
+				let session: Session;
 
 				client
 					.on("session", (accept, reject) => {
-						let session = accept();
+						session = accept();
 						session.on("shell", (accept, reject) => {
 							let stream = accept();
 						});
@@ -69,26 +80,66 @@ new Server(
 					.on("request", (accept, reject, name, info) => {
 						if (name === "tcpip-forward") {
 							accept && accept();
-							net
-								.createServer((socket) => {
-									socket.setEncoding("utf8");
-									if (socket["remoteAddress"] && socket["remotePort"]) {
-										client.forwardOut(
-											info.bindAddr,
-											info.bindPort,
-											socket.remoteAddress,
-											socket.remotePort,
-											(err, upstream) => {
-												if (err) {
-													socket.end();
-													return console.error("not working: " + err);
-												}
-												upstream.pipe(socket).pipe(upstream);
+							const server = net.createServer((socket) => {
+								socket.setEncoding("utf8");
+
+								socket.on("error", (error) => {
+									console.log("#1", error);
+								}); // DO not touch
+
+								if (socket["remoteAddress"] && socket["remotePort"]) {
+									client.forwardOut(
+										info.bindAddr,
+										info.bindPort,
+										socket.remoteAddress,
+										socket.remotePort,
+										(error, upstream) => {
+											if (error) {
+												socket.end();
+												return console.error("not working:", error);
 											}
-										);
+											upstream.pipe(socket).pipe(upstream);
+										}
+									);
+								} else {
+									socket.end();
+								}
+							});
+
+							const close = () => {
+								server.close();
+								client.end();
+							};
+
+							server.listen(0).on("listening", () => {
+								const address = server.address();
+
+								if (!address) {
+									return close();
+								}
+
+								if (typeof address === "string") {
+									return close();
+								}
+
+								console.log(address["port"]);
+
+								session.once("exec", (accept, reject, info) => {
+									const stream = accept();
+
+									switch (info.command) {
+										case "port":
+											stream.write(`${address["port"]}`);
+											stream.exit(0);
+											break;
+										default:
+											stream.stderr.write("Invalid command");
+											stream.exit(1);
 									}
-								})
-								.listen(info.bindPort);
+
+									stream.end();
+								});
+							});
 						} else {
 							reject && reject();
 						}
@@ -98,6 +149,6 @@ new Server(
 				console.log("Client disconnected");
 			});
 	}
-).listen(4444, "127.0.0.1", () => {
-	console.log(chalk.greenBright("SSH2 server started"));
+).listen(port, "127.0.0.1", () => {
+	console.log(chalk.greenBright("SSH2 server started on port", port));
 });

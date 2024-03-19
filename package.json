@@ -5,9 +5,9 @@
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"start": "ts-node ./scripts/start.ts",
-		"stop": "ts-node ./scripts/stop.ts",
-		"add": "ts-node ./scripts/add.ts",
+		"nginx:start": "ts-node ./scripts/nginx_start.ts",
+		"nginx:stop": "ts-node ./scripts/nginx_stop.ts",
+		"nginx:add": "ts-node ./scripts/nginx_add.ts",
 		"ssh2:start": "ts-node ./scripts/ssh2_start.ts",
 		"ssh2:tunnel": "ts-node ./scripts/ssh2_tunnel.ts"
 	},

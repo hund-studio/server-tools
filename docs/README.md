@@ -10,6 +10,10 @@ This repository contains a set of useful production and development tools to eas
   - Create SSH tunnel to serve local applications
   - Serve local applications on `https://`
 
+Upcoming features are:
+
+- Automate node application build on Github push
+
 ## Nginx manager
 
 ### Prerequisites
@@ -30,7 +34,7 @@ sudo apt update -y && sudo apt-get install git build-essential libpcre3 libpcre3
 When starting the server a procedure will check if there is need to install Nginx and other required tools.
 
 ```bash
-npm run start
+npm run nginx:start
 ```
 
 ### Stop
@@ -38,7 +42,7 @@ npm run start
 Stop the Nginx server.
 
 ```bash
-npm run stop
+npm run nginx:stop
 ```
 
 ### Add
@@ -57,13 +61,13 @@ Valid arguments are:
 Add a VHost to reverse proxy a next.js application running on port `3001` to domain `http://sample.hund.studio`.
 
 ```bash
-npm run add sample.hund.studio -- -t next-js -p 3001
+npm run nginx:add sample.hund.studio -- -t next-js -p 3001
 ```
 
 Add a VHOST to serve files inside `/home/ubuntu/sample.hund.studio` on `https://sample.hund.studio`
 
 ```bash
-npm run add sample.hund.studio -- -r /home/ubuntu/sample.hund.studio
+npm run nginx:add sample.hund.studio -- -r /home/ubuntu/sample.hund.studio
 ```
 
 ### SSL Certificate
@@ -87,16 +91,23 @@ When installed Certifcate creation will be automatically handled on VHost setup.
 To start an SSH2 server.
 Valid arguments are:
 
-| Arg | Description              | Required | Default |
-| :-- | :----------------------- | :------- | :------ |
-| -p  | Port for the SSH2 server | `FALSE`  | `4444`  |
+| Arg | Description                                    | Required | Default |
+| :-- | :--------------------------------------------- | :------- | :------ |
+| -u  | User:Password combination to access the server | `TRUE`   | `-`     |
+| -p  | Port for the SSH2 server                       | `FALSE`  | `4444`  |
 
 ##### SSH2 Server start examples
 
 Start an SSH2 server on port 4242.
 
 ```bash
-npm run ssh2:start -- -p 4242
+npm run ssh2:start -- -u george:1a2b3c4d -p 4242
+```
+
+Start an SSH2 server on port 4242.
+
+```bash
+npm run ssh2:start -- -u george:1a2b3c4d -p 4242
 ```
 
 ### SSH2 Tunnel
@@ -106,21 +117,23 @@ npm run ssh2:start -- -p 4242
 To start an SSH2 server.
 Valid arguments are:
 
-| Arg | Description                     | Required | Default |
-| :-- | :------------------------------ | :------- | :------ |
-| -p  | Local port to forward           | `TRUE`   | `-`     |
-| -d  | Domain to use for public access | `FALSE`  | `-`     |
+| Arg | Description                                    | Required | Default |
+| :-- | :--------------------------------------------- | :------- | :------ |
+|     | LocalPort:RemoteSSHHost:RemoteSSHHostPort      | `TRUE`   | `-`     |
+| -u  | User:Password combination to access the server | `TRUE`   | `-`     |
+| -p  | Remote target port                             | `FALSE`  | `0`     |
+| -d  | Domain to use for public access                | `FALSE`  | `-`     |
 
 ##### SSH2 Server tunnel examples
 
 Start an SSH2 tunnel of local port `3000`:
 
 ```bash
-npm run ssh2:tunnel -- -p 3000
+npm run ssh2:tunnel 3000:127.0.0.1:4242 -- -u george:1a2b3c4d -p 3000
 ```
 
 Start an SSH2 tunnel of local port `3000` on domain `https://sample.hund.studio`:
 
 ```bash
-npm run ssh2:tunnel -- -p 3000 -d sample.hund.studio
+npm run ssh2:tunnel 3000:127.0.0.1:4242 -- -p 3000 -d sample.hund.studio
 ```

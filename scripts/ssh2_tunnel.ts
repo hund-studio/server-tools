@@ -1,5 +1,24 @@
-import chalk from "chalk";
 import { Client } from "ssh2";
+import { getCommandArgValue } from "../utils/getCommandArgValue";
+import chalk from "chalk";
+import net from "net";
+
+const [connectionString, ...args] = process.argv.slice(2);
+const userArg = getCommandArgValue(args, "-u");
+const remoteTargetPort = getCommandArgValue(args, "-p") || 0;
+
+if (!connectionString) {
+	console.log(chalk.redBright("You must specify a connection parameter"));
+	process.exit(1);
+}
+
+if (!userArg) {
+	console.log(chalk.redBright("-u parameter is required"));
+	process.exit(1);
+}
+
+const [localPort, remoteHost, remoteHostPort] = connectionString?.split(":").map((i) => i);
+const [allowedUser, allowedPassword] = userArg?.split(":").map((i) => i);
 
 console.log(chalk.greenBright("Starting SSH2 tunnel"));
 
@@ -7,37 +26,33 @@ const conn = new Client();
 conn
 	.on("ready", () => {
 		console.log("Client :: ready");
-		conn.forwardIn("127.0.0.1", 8000, (err) => {
+
+		conn.exec("port", (error, channel) => {
+			channel.on("data", (data: string) => {
+				console.log("Your service is running on remote port", data.toString());
+			});
+		});
+
+		conn.forwardIn("127.0.0.1", Number(localPort), (err) => {
 			if (err) throw err;
-			console.log("Listening for connections on server on port 8000!");
+			console.log("Listening for connections on server on port", localPort);
 		});
 	})
 	.on("tcp connection", (info, accept, reject) => {
 		console.log("TCP :: INCOMING CONNECTION:");
 		console.dir(info);
-		accept()
-			.on("close", () => {
-				console.log("TCP :: CLOSED");
-			})
-			.on("data", (data: any) => {
-				console.log("TCP :: DATA: " + data);
-			})
-			.end(
-				[
-					"HTTP/1.1 404 Not Found",
-					"Date: Thu, 15 Nov 2012 02:07:58 GMT",
-					"Server: ForwardedConnection",
-					"Content-Length: 0",
-					"Connection: close",
-					"",
-					"",
-				].join("\r\n")
-			);
+
+		const localConnection = net.createConnection(Number(localPort), "127.0.0.1", () => {
+			const remoteConnection = accept();
+
+			remoteConnection.pipe(localConnection);
+			localConnection.pipe(remoteConnection);
+		});
 	})
 	.connect({
-		host: "127.0.0.1",
-		port: 4444,
-		username: "foo",
-		password: "bar",
+		host: remoteHost,
+		port: Number(remoteHostPort),
+		username: allowedUser,
+		password: allowedPassword,
 	});
 console.log(chalk.greenBright("SSH2 tunnel started"));
