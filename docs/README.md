@@ -1,54 +1,107 @@
-# Prerequisites
+# Server Tools
 
-This tool can be run only with a sudo-privileged user. Otherwise nginx wouldn't be able to access port 80.
+This repository contains a set of useful production and development tools to easily configure a VPS server. Available tools are:
 
-# Required deps
+- Nginx manager
+  - Install and start and nginx instance
+  - Add VHosts with different templates (html, next.js reverse proxy...)
+  - Automatically generate SSL Certificates using letsencrypt
+- SSH2 Server + Client
+  - Create SSH tunnel to serve local applications
+  - Serve local applications on `https://`
 
-You must install those deps in order to build NGINX.
+## Nginx manager
+
+### Prerequisites
+
+This tool can be run only with a sudo-privileged user, otherwise Nginx wouldn't be able to run on port 80. This repository has only been tested on Ubuntu.
+
+#### Required deps
+
+You must install the following dependencies to build Nginx from source.
+Nginx build and installation will be handled from `start` command.
 
 ```bash
 sudo apt update -y && sudo apt-get install git build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev libgd-dev libxml2 libxml2-dev uuid-dev
 ```
 
-# Install and run
+### Install and Start
 
-When starting the server a procedure ill check if there is need to install nginx and other required tools.
+When starting the server a procedure will check if there is need to install Nginx and other required tools.
 
 ```bash
 npm run start
 ```
 
-# Stop
+### Stop
+
+Stop the Nginx server.
 
 ```bash
 npm run stop
 ```
 
-# Add
+### Add
 
-Add command is useful to add vhosts with some premade templates. In order to pass arguments to npm run command you must use `--` before passing arugments.
-Valid arguments are...
+Add command can be used to add nginx VHosts with some premade templates. In order to pass arguments to `npm run` command you must use `--` before passing arugments.
+Valid arguments are:
 
-| Arg | Description                          |
-| :-- | :----------------------------------- |
-| -t  | Template name that you want to use   |
-| -p  | Port if template supports it         |
-| -r  | Webroot path if template supports it |
+| Arg | Description                          | Required | Default   |
+| :-- | :----------------------------------- | :------- | :-------- |
+| -t  | Template name that you want to use   | `FALSE`  | `default` |
+| -p  | Port if template supports it         | `FALSE`  | `-`       |
+| -r  | Webroot path if template supports it | `FALSE`  | `html`    |
+
+#### Examples
+
+Add a VHost to reverse proxy a next.js application running on port `3001` to domain `http://sample.hund.studio`.
 
 ```bash
-npm run add sample.hund.studio -- -t next-js
+npm run add sample.hund.studio -- -t next-js -p 3001
 ```
+
+Add a VHOST to serve files inside `/home/ubuntu/sample.hund.studio` on `https://sample.hund.studio`
 
 ```bash
 npm run add sample.hund.studio -- -r /home/ubuntu/sample.hund.studio
 ```
 
-# SLL Certificate
+### SSL Certificate
 
-First you need to install certbot too on you server using snap, since certbot-auto script has been deprecated.
+You need to install `certbot` on you server with `snap`.
+
+> certbot-auto script has been deprecated and `snap` is the suggested install method.
 
 ```bash
 sudo snap install --classic certbot
 ```
 
-When you add a new website Certifcate creation ill be handled automatically.
+When installed Certifcate creation will be automatically handled on VHost setup.
+
+## SSH2
+
+### SS2 Server
+
+#### Start
+
+To start an SSH2 server
+
+```bash
+npm run ssh2:start
+```
+
+| Arg | Description              | Required | Default |
+| :-- | :----------------------- | :------- | :------ |
+| -p  | Port for the SSH2 server | `FALSE`  | `4444`  |
+
+##### SSH2 Server examples
+
+Start an SSH2 server on port 4242.
+
+```bash
+npm run ssh2:start -- -p 4242
+```
+
+### SSH2 Tunnel
+
+TODO
