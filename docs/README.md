@@ -12,7 +12,11 @@ This repository contains a set of useful production and development tools to eas
 
 Upcoming features are:
 
-- Automate node application build on Github push
+- Automate node application build/depoly on Github push
+
+Nice to have:
+
+- At some point the entire package could be bundled and shipped as a command line tool without the need of cloning the repository
 
 ## Nginx manager
 
