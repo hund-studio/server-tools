@@ -1,6 +1,8 @@
 # Server Tools
 
-This repository contains a set of useful production and development tools to easily configure a VPS server. Available tools are:
+This repository contains a set of useful production and development tools to easily configure a VPS server.
+
+Available tools are:
 
 - Nginx manager
   - Install and start and nginx instance
@@ -17,6 +19,10 @@ Upcoming features are:
 Nice to have:
 
 - At some point the entire package could be bundled and shipped as a command line tool without the need of cloning the repository
+
+Not on our list:
+
+- A tool to run node js applications or similar. There are fantastic tools like PM2 which does that and it is not the goal of this repository.
 
 ## Nginx manager
 
