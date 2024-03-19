@@ -95,20 +95,14 @@ When installed Certifcate creation will be automatically handled on VHost setup.
 To start an SSH2 server.
 Valid arguments are:
 
-| Arg | Description                                    | Required | Default |
-| :-- | :--------------------------------------------- | :------- | :------ |
-| -u  | User:Password combination to access the server | `TRUE`   | `-`     |
-| -p  | Port for the SSH2 server                       | `FALSE`  | `4444`  |
+| Arg | Description                                        | Required | Default |
+| :-- | :------------------------------------------------- | :------- | :------ |
+| -u  | `User`:`Password` combination to access the server | `TRUE`   | `-`     |
+| -p  | Port for the SSH2 server                           | `FALSE`  | `4444`  |
 
 ##### SSH2 Server start examples
 
-Start an SSH2 server on port 4242.
-
-```bash
-npm run ssh2:start -- -u george:1a2b3c4d -p 4242
-```
-
-Start an SSH2 server on port 4242.
+Start an SSH2 server on port `4242`:
 
 ```bash
 npm run ssh2:start -- -u george:1a2b3c4d -p 4242
@@ -121,22 +115,22 @@ npm run ssh2:start -- -u george:1a2b3c4d -p 4242
 To start an SSH2 server.
 Valid arguments are:
 
-| Arg | Description                                    | Required | Default |
-| :-- | :--------------------------------------------- | :------- | :------ |
-|     | LocalPort:RemoteSSHHost:RemoteSSHHostPort      | `TRUE`   | `-`     |
-| -u  | User:Password combination to access the server | `TRUE`   | `-`     |
-| -p  | Remote target port                             | `FALSE`  | `0`     |
-| -d  | Domain to use for public access                | `FALSE`  | `-`     |
+| Arg | Description                                        | Required | Default |
+| :-- | :------------------------------------------------- | :------- | :------ |
+|     | `LocalPort`:`RemoteSSHHost`:`RemoteSSHHostPort`    | `TRUE`   | `-`     |
+| -u  | `User`:`Password` combination to access the server | `TRUE`   | `-`     |
+| -p  | Remote target port                                 | `FALSE`  | `0`     |
+| -d  | Domain to use for public access                    | `FALSE`  | `-`     |
 
 ##### SSH2 Server tunnel examples
 
-Start an SSH2 tunnel of local port `3000`:
+Start an SSH2 tunnel of local port `3000` on remote port `4545` (if available):
 
 ```bash
-npm run ssh2:tunnel 3000:127.0.0.1:4242 -- -u george:1a2b3c4d -p 3000
+npm run ssh2:tunnel 3000:127.0.0.1:4242 -- -u george:1a2b3c4d -p 4545
 ```
 
-Start an SSH2 tunnel of local port `3000` on domain `https://sample.hund.studio`:
+Start an SSH2 tunnel of local port `3000` on domain `http(s)://sample.hund.studio`:
 
 ```bash
 npm run ssh2:tunnel 3000:127.0.0.1:4242 -- -p 3000 -d sample.hund.studio
