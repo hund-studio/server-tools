@@ -18,8 +18,10 @@ Upcoming features are:
 
 Nice to have:
 
+- Before certificate issue it should check if DNS are pointed correctly
 - At some point the entire package could be bundled and shipped as a command line tool without the need of cloning the repository
 - A way to retrieve a specific nginx source code version without adding it to the repository
+- Some custom html messages/templates for default/non-working applications
 
 Not on our list:
 
@@ -27,7 +29,7 @@ Not on our list:
 
 ## To fix
 
-- Certificate issue for already generated vhosts
+- If a vhosts exists it should be deleted before requesting an SSL certificate
 
 ## Nginx manager
 
