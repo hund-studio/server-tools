@@ -40,6 +40,15 @@ new Server(
 	(client) => {
 		console.log("Client connected!");
 
+		let session: Session;
+		let requestedPort: number;
+		let server: net.Server;
+
+		const close = () => {
+			server.close();
+			client.end();
+		};
+
 		client
 			.on("authentication", (ctx) => {
 				let allowed = true;
@@ -69,8 +78,6 @@ new Server(
 			})
 			.on("ready", () => {
 				console.log("Client authenticated!");
-				let session: Session;
-				let requestedPort: number;
 
 				client
 					.on("session", (accept, reject) => {
@@ -109,7 +116,7 @@ new Server(
 					.on("request", (accept, reject, name, info) => {
 						if (name === "tcpip-forward") {
 							accept && accept();
-							const server = net.createServer((socket) => {
+							server = net.createServer((socket) => {
 								socket.setEncoding("utf8");
 
 								socket.on("error", (error) => {
@@ -135,11 +142,6 @@ new Server(
 								}
 							});
 
-							const close = () => {
-								server.close();
-								client.end();
-							};
-
 							server
 								.listen(requestedPort)
 								.on("listening", () => {
@@ -159,7 +161,7 @@ new Server(
 
 									requestedPort = address["port"];
 								})
-								.on("error", () => {
+								.on("error", (error) => {
 									return close();
 								});
 						} else {
@@ -169,6 +171,7 @@ new Server(
 			})
 			.on("close", () => {
 				console.log("Client disconnected");
+				close();
 			});
 	}
 ).listen(port, "0.0.0.0", () => {
