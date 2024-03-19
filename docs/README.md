@@ -25,6 +25,10 @@ Not on our list:
 
 - A tool to run node js applications or similar. There are fantastic tools like PM2 which does that and it is not the goal of this repository.
 
+## To fix
+
+- Certificate issue for already generated vhosts
+
 ## Nginx manager
 
 ### Prerequisites
@@ -95,9 +99,9 @@ When installed Certifcate creation will be automatically handled on VHost setup.
 
 ## SSH2
 
-### SS2 Server
+### SSH2 Server
 
-#### Start
+#### SSH2 Server Start
 
 To start an SSH2 server.
 Valid arguments are:
@@ -106,6 +110,14 @@ Valid arguments are:
 | :-- | :------------------------------------------------- | :------- | :------ |
 | -u  | `User`:`Password` combination to access the server | `TRUE`   | `-`     |
 | -p  | Port for the SSH2 server                           | `FALSE`  | `4444`  |
+
+##### SSH2 Server Start using PM2
+
+If you want to start it as a daemonized process the easiest way is to use PM2.
+
+```bash
+pm2 start "npm run ssh2:start -- -u george:1a2b3c4d -p 4242"
+```
 
 ##### SSH2 Server start examples
 
