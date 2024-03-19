@@ -84,17 +84,14 @@ When installed Certifcate creation will be automatically handled on VHost setup.
 
 #### Start
 
-To start an SSH2 server
-
-```bash
-npm run ssh2:start
-```
+To start an SSH2 server.
+Valid arguments are:
 
 | Arg | Description              | Required | Default |
 | :-- | :----------------------- | :------- | :------ |
 | -p  | Port for the SSH2 server | `FALSE`  | `4444`  |
 
-##### SSH2 Server examples
+##### SSH2 Server start examples
 
 Start an SSH2 server on port 4242.
 
@@ -104,4 +101,26 @@ npm run ssh2:start -- -p 4242
 
 ### SSH2 Tunnel
 
-TODO
+#### SSH2 Tunnel start
+
+To start an SSH2 server.
+Valid arguments are:
+
+| Arg | Description                     | Required | Default |
+| :-- | :------------------------------ | :------- | :------ |
+| -p  | Local port to forward           | `TRUE`   | `-`     |
+| -d  | Domain to use for public access | `FALSE`  | `-`     |
+
+##### SSH2 Server tunnel examples
+
+Start an SSH2 tunnel of local port `3000`:
+
+```bash
+npm run ssh2:tunnel -- -p 3000
+```
+
+Start an SSH2 tunnel of local port `3000` on domain `https://sample.hund.studio`:
+
+```bash
+npm run ssh2:tunnel -- -p 3000 -d sample.hund.studio
+```
