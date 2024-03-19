@@ -171,6 +171,6 @@ new Server(
 				console.log("Client disconnected");
 			});
 	}
-).listen(port, "127.0.0.1", () => {
+).listen(port, "0.0.0.0", () => {
 	console.log(chalk.greenBright("SSH2 server started on port", port));
 });
