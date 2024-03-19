@@ -19,6 +19,7 @@ Upcoming features are:
 Nice to have:
 
 - At some point the entire package could be bundled and shipped as a command line tool without the need of cloning the repository
+- A way to retrieve a specific nginx source code version without adding it to the repository
 
 Not on our list:
 

@@ -3,6 +3,7 @@ import { Server, Session, utils } from "ssh2";
 import { timingSafeEqual } from "crypto";
 import chalk from "chalk";
 import net from "net";
+import { nginx_add } from "../commands/nginx_add";
 
 const keys = utils.generateKeyPairSync("ed25519");
 const allowedPubKey = utils.parseKey(keys["public"]);
@@ -69,10 +70,38 @@ new Server(
 			.on("ready", () => {
 				console.log("Client authenticated!");
 				let session: Session;
+				let requestedPort: number;
 
 				client
 					.on("session", (accept, reject) => {
 						session = accept();
+
+						session.once("exec", (accept, reject, info) => {
+							const stream = accept();
+							const command = info.command.split(" ")[0];
+							const arg = info.command.split(" ")[1];
+
+							switch (command) {
+								case "config_port":
+									requestedPort = Number(arg);
+									stream.exit(0);
+									break;
+								case "config_domain":
+									nginx_add(arg, { template: "next-js", port: requestedPort });
+									stream.exit(0);
+									break;
+								case "request_port":
+									stream.write(`${requestedPort}`);
+									stream.exit(0);
+									break;
+								default:
+									stream.stderr.write("Invalid command");
+									stream.exit(1);
+							}
+
+							stream.end();
+						});
+
 						session.on("shell", (accept, reject) => {
 							let stream = accept();
 						});
@@ -111,35 +140,28 @@ new Server(
 								client.end();
 							};
 
-							server.listen(0).on("listening", () => {
-								const address = server.address();
+							server
+								.listen(requestedPort)
+								.on("listening", () => {
+									const address = server.address();
 
-								if (!address) {
-									return close();
-								}
+									console.log("Starting");
 
-								if (typeof address === "string") {
-									return close();
-								}
-
-								console.log(address["port"]);
-
-								session.once("exec", (accept, reject, info) => {
-									const stream = accept();
-
-									switch (info.command) {
-										case "port":
-											stream.write(`${address["port"]}`);
-											stream.exit(0);
-											break;
-										default:
-											stream.stderr.write("Invalid command");
-											stream.exit(1);
+									if (!address) {
+										return close();
 									}
 
-									stream.end();
+									if (typeof address === "string") {
+										return close();
+									}
+
+									console.log(address["port"]);
+
+									requestedPort = address["port"];
+								})
+								.on("error", () => {
+									return close();
 								});
-							});
 						} else {
 							reject && reject();
 						}

@@ -6,6 +6,7 @@ import net from "net";
 const [connectionString, ...args] = process.argv.slice(2);
 const userArg = getCommandArgValue(args, "-u");
 const remoteTargetPort = getCommandArgValue(args, "-p") || 0;
+const publicDomain = getCommandArgValue(args, "-d");
 
 if (!connectionString) {
 	console.log(chalk.redBright("You must specify a connection parameter"));
@@ -22,20 +23,39 @@ const [allowedUser, allowedPassword] = userArg?.split(":").map((i) => i);
 
 console.log(chalk.greenBright("Starting SSH2 tunnel"));
 
-const conn = new Client();
-conn
+const connection = new Client();
+connection
 	.on("ready", () => {
 		console.log("Client :: ready");
 
-		conn.exec("port", (error, channel) => {
+		connection.exec(`config_port ${remoteTargetPort}`, (error, channel) => {
+			if (error) throw error;
+
 			channel.on("data", (data: string) => {
 				console.log("Your service is running on remote port", data.toString());
 			});
-		});
 
-		conn.forwardIn("127.0.0.1", Number(localPort), (err) => {
-			if (err) throw err;
-			console.log("Listening for connections on server on port", localPort);
+			connection.forwardIn("127.0.0.1", Number(localPort), (error) => {
+				if (error) throw error;
+				console.log("Listening for connections on server on port", localPort);
+
+				connection.exec("request_port", (error, channel) => {
+					if (error) throw error;
+					channel.on("data", (data: string) => {
+						console.log("Your service is running on remote port", data.toString());
+					});
+				});
+			});
+
+			if (publicDomain) {
+				connection.exec(`config_domain ${publicDomain}`, (error, channel) => {
+					if (error) throw error;
+
+					channel.on("data", (data: string) => {
+						console.log("Serving on domain", data.toString());
+					});
+				});
+			}
 		});
 	})
 	.on("tcp connection", (info, accept, reject) => {

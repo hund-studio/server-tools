@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { stopNginx } from "../commands/nginx_stop";
+import { stopNginx } from "../shell/nginx_stop";
 
 const init = async () => {
 	console.log(chalk.magentaBright("=== START ==="));
