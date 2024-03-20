@@ -169,6 +169,9 @@ new Server(
 						}
 					});
 			})
+			.on("error", (error) => {
+				console.log("#2", error);
+			}) // DO not touch
 			.on("close", () => {
 				console.log("Client disconnected");
 				close();
