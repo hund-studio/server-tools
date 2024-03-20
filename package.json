@@ -5,11 +5,13 @@
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"nginx:start": "ts-node ./scripts/nginx_start.ts",
-		"nginx:stop": "ts-node ./scripts/nginx_stop.ts",
-		"nginx:add": "ts-node ./scripts/nginx_add.ts",
-		"ssh2:start": "ts-node ./scripts/ssh2_start.ts",
-		"ssh2:tunnel": "ts-node ./scripts/ssh2_tunnel.ts",
+		"help": "ts-node ./cli.ts",
+		"bundle": "webpack",
+		"nginx:start": "ts-node ./cli.ts nginx:start",
+		"nginx:stop": "ts-node ./cli.ts nginx:stop",
+		"nginx:add": "ts-node ./cli.ts nginx:stop sample.hund.studio -t next-js -p 3000",
+		"ssh2:start": "ts-node ./cli.ts ssh2:start -u ernesto:password -p 4242",
+		"ssh2:tunnel": "ts-node ./cli.ts ssh2:tunnel 3000:127.0.0.1:4242 -u ernesto:password -p 5454",
 		"github:listen": "ts-node ./scripts/github_listen.ts"
 	},
 	"keywords": [],
@@ -20,12 +22,17 @@
 		"@types/node": "^20.11.28",
 		"@types/ssh2": "^1.15.0",
 		"@types/string-template": "^1.0.6",
+		"node-loader": "^2.0.0",
+		"ts-loader": "^9.5.1",
 		"ts-node": "^10.9.2",
-		"typescript": "^5.4.2"
+		"typescript": "^5.4.2",
+		"webpack": "^5.90.3",
+		"webpack-cli": "^5.1.4"
 	},
 	"dependencies": {
 		"body-parser": "^1.20.2",
 		"chalk": "^4.1.2",
+		"commander": "^12.0.0",
 		"express": "^4.18.3",
 		"ssh2": "^1.15.0",
 		"string-template": "^1.0.0"

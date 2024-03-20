@@ -5,31 +5,31 @@ This repository contains a set of useful production and development tools to eas
 Available tools are:
 
 - Nginx manager
-  - Install and start and nginx instance
-  - Add VHosts with different templates (html, next.js reverse proxy...)
-  - Automatically generate SSL Certificates using letsencrypt
+  - Install and start an Nginx instance
+  - Add vhosts with different templates (HTML, Next.js reverse proxy...)
+  - Automatically generate SSL certificates using Let's Encrypt
 - SSH2 Server + Client
   - Create SSH tunnel to serve local applications
   - Serve local applications on `https://`
 
 Upcoming features are:
 
-- Automate node application build/depoly on Github push using webhooks
+- Automate node application build/deploy on GitHub push using webhooks
 
 Nice to have:
 
-- Before certificate issue it should check if DNS are pointed correctly
-- At some point the entire package could be bundled and shipped as a command line tool without the need of cloning the repository
-- A way to retrieve a specific nginx source code version without adding it to the repository
-- Some custom html messages/templates for default/non-working applications
+- Before issuing a certificate, it should check if DNS is pointed correctly
+- In the future, the entire package could be bundled and distributed as a standalone command-line tool, eliminating the need to clone the repository
+- A way to retrieve a specific Nginx source code version without adding it to the repository
+- Some custom HTML messages/templates for default/non-working applications
 
 Not on our list:
 
-- A tool to run node js applications or similar. There are fantastic tools like PM2 which does that and it is not the goal of this repository.
+- A tool to run Node.js applications or similar. There are fantastic tools like PM2 which do that and it is not the goal of this repository.
 
 ## To fix
 
-- If a vhosts exists it should be deleted before requesting an SSL certificate
+- If a vhost exists, it should be deleted before requesting an SSL certificate.
 
 ## Nginx manager
 
