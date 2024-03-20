@@ -14,7 +14,7 @@ Available tools are:
 
 Upcoming features are:
 
-- Automate node application build/depoly on Github push
+- Automate node application build/depoly on Github push using webhooks
 
 Nice to have:
 

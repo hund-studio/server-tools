@@ -116,8 +116,9 @@ new Server(
 					.on("request", (accept, reject, name, info) => {
 						if (name === "tcpip-forward") {
 							accept && accept();
+							// accept && accept(port); // useful to comunicato to client if port is preset, not our case
 							server = net.createServer((socket) => {
-								socket.setEncoding("utf8");
+								// socket.setEncoding("utf8"); // remove to work with buffer (ae. Minecraft)
 
 								socket.on("error", (error) => {
 									console.log("#1", error);
