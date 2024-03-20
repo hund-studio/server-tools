@@ -45,7 +45,7 @@ new Server(
 		let server: net.Server;
 
 		const close = () => {
-			server.close();
+			server && server.close();
 			client.end();
 		};
 
@@ -180,3 +180,12 @@ new Server(
 ).listen(port, "0.0.0.0", () => {
 	console.log(chalk.greenBright("SSH2 server started on port", port));
 });
+
+/*
+
+DEBUG
+
+ssh -o "HostKeyAlgorithms=ssh-dss" -p 4242 ernesto@51.178.137.42
+Unable to negotiate with 51.178.137.42 port 4242: no matching host key type found. Their offer: ssh-ed25519
+
+*/
