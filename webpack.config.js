@@ -3,6 +3,7 @@ const path = require("path");
 module.exports = {
 	entry: "./cli.ts",
 	target: "node",
+	mode: "production",
 	module: {
 		rules: [
 			{

@@ -49,7 +49,7 @@ export const nginx_start = async () => {
 			if (typeof patchedNginx === "string") {
 				console.log(chalk.red(patchedNginx));
 			}
-			console.log(chalk.redBright("Error during Nginx patc.h"));
+			console.log(chalk.redBright("Error during Nginx patch."));
 			process.exit(0);
 		} else {
 			console.log(chalk.greenBright("Nginx successfully patched."));
