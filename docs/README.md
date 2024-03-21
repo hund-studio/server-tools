@@ -166,7 +166,7 @@ npm run bundle
 ```
 
 ```bash
-node --experimental-sea-config seaconfig.json
+node --experimental-sea-config sea.config.json
 cp $(command -v node) ./dist/server-tools
 ```
 

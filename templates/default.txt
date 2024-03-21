@@ -3,7 +3,7 @@ server {
     server_name {domain};
 
     location / {
-        root html;
+        root {root};
         index index.html index.htm;
     }
 
