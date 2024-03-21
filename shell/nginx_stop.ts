@@ -3,7 +3,7 @@ import { executeCommand } from "../utils/executeCommand";
 
 export const stopNginx = async () => {
 	try {
-		const stopCommand = `sudo ${nginxConfig.path}/sbin/nginx -s stop`;
+		const stopCommand = `sudo ${nginxConfig["root"]}/sbin/nginx -s stop`;
 		await executeCommand(stopCommand);
 		return true;
 	} catch (error) {

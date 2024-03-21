@@ -1,0 +1,11 @@
+{
+	"main": "./dist/cli.js",
+	"output": "./dist/cli.blob",
+	"assets": {
+		"default.txt": "./templates/default.txt",
+		"default--ssl.txt": "./templates/default--ssl.txt",
+		"next-js.txt": "./templates/next-js.txt",
+		"next-js--ssl.txt": "./templates/next-js--ssl.txt",
+		"patched.txt": "./templates/patched.txt"
+	}
+}

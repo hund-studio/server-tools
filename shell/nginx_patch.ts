@@ -6,8 +6,8 @@ import format from "string-template";
 
 export const patchNginx = async () => {
 	try {
-		const configFile = resolve(nginxConfig["path"], "conf/nginx.conf");
-		const customConfigLocationString = `include ${nginxConfig["config"]}/*.conf;`;
+		const configFile = resolve(nginxConfig["root"], "conf/nginx.conf");
+		const customConfigLocationString = `include ${nginxConfig["vhosts"]}/*.conf;`;
 		const serverUserString = `user ${userInfo().username};`;
 
 		const content = readFileSync(resolve(process.cwd(), "templates", `patched.txt`), "utf-8");

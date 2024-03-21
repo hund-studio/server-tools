@@ -156,3 +156,26 @@ Start an SSH2 tunnel of local port `3000` on domain `http(s)://sample.hund.studi
 ```bash
 npm run ssh2:tunnel 3000:127.0.0.1:4242 -- -p 3000 -d sample.hund.studio
 ```
+
+## Prepare the executable
+
+This way of preparing the executable is experimental.
+
+```bash
+npm run bundle
+```
+
+```bash
+node --experimental-sea-config seaconfig.json
+cp $(command -v node) ./dist/server-tools
+```
+
+> https://dev.to/chad_r_stewart/compile-a-single-executable-from-your-node-app-with-nodejs-20-and-esbuild-210j
+
+> https://nodejs.org/api/single-executable-applications.html#single-executable-application-creation-process
+
+> https://nodejs.org/en/blog/release/v21.7.0
+
+```bash
+npx postject ./dist/server-tools NODE_SEA_BLOB ./dist/cli.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2
+```

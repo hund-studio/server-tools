@@ -1,6 +1,10 @@
 import { homedir } from "os";
 import { resolve } from "path";
 
+const appData = resolve(homedir(), ".server-tools");
+
 export default {
-	appData: resolve(homedir(), ".server-tools"),
+	appData,
+	email: "developer@hund.studio",
+	sources: resolve(appData, "sources"),
 };

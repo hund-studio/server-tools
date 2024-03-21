@@ -4,11 +4,12 @@ import { nginx_start } from "./commands/nginx_start";
 import { nginx_stop } from "./commands/nginx_stop";
 import { nginx_add } from "./commands/nginx_add";
 import { ssh2_tunnel } from "./commands/ssh2_tunnel";
+import packageJson from "./package.json";
 
 program
-	.name("server-tools")
-	.description("CLI tool for VPS administration by hund")
-	.version("0.0.1");
+	.name(packageJson["name"])
+	.description(packageJson["description"])
+	.version(packageJson["version"]);
 
 /**
  * NGINX commands

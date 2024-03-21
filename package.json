@@ -1,8 +1,11 @@
 {
 	"name": "server-tools",
-	"version": "1.0.0",
-	"description": "",
+	"version": "0.0.1",
+	"description": "CLI tool for VPS administration by hund",
 	"main": "index.js",
+	"bin": {
+		"server-tools": "./cli.js"
+	},
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"help": "ts-node ./cli.ts",
@@ -19,9 +22,10 @@
 	"license": "ISC",
 	"devDependencies": {
 		"@types/express": "^4.17.21",
-		"@types/node": "^20.11.28",
+		"@types/node": "^20.11.30",
 		"@types/ssh2": "^1.15.0",
 		"@types/string-template": "^1.0.6",
+		"esbuild": "^0.20.2",
 		"node-loader": "^2.0.0",
 		"ts-loader": "^9.5.1",
 		"ts-node": "^10.9.2",

@@ -3,7 +3,7 @@ import { executeCommand } from "../utils/executeCommand";
 
 export const reloadNginx = async () => {
 	try {
-		const stopCommand = `sudo ${nginxConfig.path}/sbin/nginx -s reload`;
+		const stopCommand = `sudo ${nginxConfig["root"]}/sbin/nginx -s reload`;
 		await executeCommand(stopCommand);
 		return true;
 	} catch (error) {

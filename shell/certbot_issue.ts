@@ -3,14 +3,15 @@ import certbotConfig from "../utils/config/certbot";
 import nginxConfig from "../utils/config/nginx";
 import { executeCommand } from "../utils/executeCommand";
 import { accessSync, existsSync, readdirSync } from "fs";
+import globalConfig from "../utils/config/global";
 
 export const issueCert = async (domain: string) => {
 	try {
 		await executeCommand(
-			`certbot certonly --webroot --webroot-path ${nginxConfig["root"]} --cert-name ${domain} --work-dir ${certbotConfig["work"]} --logs-dir ${certbotConfig["logs"]} --config-dir ${certbotConfig["config"]} --non-interactive --agree-tos -m ${certbotConfig["email"]} -d ${domain}`
+			`certbot certonly --webroot --webroot-path ${nginxConfig["webroot"]} --cert-name ${domain} --work-dir ${certbotConfig["work"]} --logs-dir ${certbotConfig["logs"]} --config-dir ${certbotConfig["root"]} --non-interactive --agree-tos -m ${globalConfig["email"]} -d ${domain}`
 		);
 
-		const certificatesDir = resolve(certbotConfig["config"], "live");
+		const certificatesDir = resolve(certbotConfig["root"], "live");
 
 		if (!existsSync(certificatesDir)) {
 			throw new Error("`live` folder not found");
@@ -38,9 +39,9 @@ export const issueCert = async (domain: string) => {
 		}
 
 		try {
-			accessSync(`${certbotConfig["config"]}/dhparam.pem`);
+			accessSync(`${certbotConfig["root"]}/dhparam.pem`);
 		} catch (e) {
-			await executeCommand(`openssl dhparam -out ${certbotConfig["config"]}/dhparam.pem 2048`);
+			await executeCommand(`openssl dhparam -out ${certbotConfig["root"]}/dhparam.pem 2048`);
 		}
 
 		return true;
