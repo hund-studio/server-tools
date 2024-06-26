@@ -94,6 +94,7 @@ the you can run it from anywhere as a normal program
 ### Prerequisites
 
 - ⚠️ This tool must be run from a sudo-privileged user due to Nginx limitations.
+  - On Ubuntu 24.04 LTS sudo seems no longer required.
 - ⚠️ This functionality has only been tested on Ubuntu.
 
 #### Required deps
