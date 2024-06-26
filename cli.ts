@@ -43,6 +43,11 @@ program
 		"if template supports it, it can be used to specify the root path inside the template"
 	)
 	.action((domain, options) => {
+		if (["next-js", "nodejs", "websocket"].includes(options["template"]) && !options["port"]) {
+			console.error(`Error: --port is mandatory when --template is set to ${options["template"]}`);
+			process.exit(1);
+		}
+
 		nginx_add(domain, {
 			template: options["template"],
 			port: options["port"],

@@ -38,9 +38,9 @@ Find below a list of available/on progress/planned functionalities.
 
 ### Known issues
 
-| Functionality                                                              | Status |
-| :------------------------------------------------------------------------- | :----- |
-| If a vhost exists, it should be reset before requesting an SSL certificate | 🕵     |
+| Functionality                                                              | Status           |
+| :------------------------------------------------------------------------- | :--------------- |
+| If a vhost exists, it should be reset before requesting an SSL certificate | Solved in latest |
 
 ## Installation
 

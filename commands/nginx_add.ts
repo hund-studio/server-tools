@@ -1,4 +1,6 @@
 import { addVHost } from "../shell/nginx_addVHost";
+import { deleteCert } from "../shell/certbot_delete";
+import { deleteVHost } from "../shell/nginx_deleteVHost";
 import { issueCert } from "../shell/certbot_issue";
 import { reloadNginx } from "../shell/nginx_reload";
 import chalk from "chalk";
@@ -9,6 +11,11 @@ export const nginx_add = async (
 ) => {
 	/* */
 	console.log(chalk.magentaBright("=== START ==="));
+
+	/* */
+	await deleteVHost(domain);
+	await deleteCert(domain);
+	await reloadNginx();
 
 	/* */
 	console.log(chalk.greenBright(`Trying issuing certificate for ${domain}...`));
