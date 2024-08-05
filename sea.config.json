@@ -1,11 +1,15 @@
 {
-	"main": "./dist/cli.js",
-	"output": "./dist/cli.blob",
-	"assets": {
-		"default.txt": "./templates/default.txt",
-		"default--ssl.txt": "./templates/default--ssl.txt",
-		"next-js.txt": "./templates/next-js.txt",
-		"next-js--ssl.txt": "./templates/next-js--ssl.txt",
-		"patched.txt": "./templates/patched.txt"
-	}
+    "main": "./dist/cli.js",
+    "output": "./dist/cli.blob",
+    "assets": {
+        "default.txt": "./templates/default.txt",
+        "default--ssl.txt": "./templates/default--ssl.txt",
+        "next-js.txt": "./templates/next-js.txt",
+        "next-js--ssl.txt": "./templates/next-js--ssl.txt",
+        "nodejs.txt": "./templates/nodejs.txt",
+        "nodejs--ssl.txt": "./templates/nodejs--ssl.txt",
+        "patched.txt": "./templates/patched.txt",
+        "websocket.txt": "./templates/websocket.txt",
+        "websocket--ssl.txt": "./templates/websocket--ssl.txt"
+    }
 }
