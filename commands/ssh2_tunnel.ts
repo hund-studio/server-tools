@@ -114,7 +114,7 @@ export const ssh2_tunnel = (
                 username: allowedUser,
                 password: allowedPassword,
                 debug: options["verbose"]
-                    ? (info) => console.log("log", chalk.blue(`SSH2 Debug: ${info}`))
+                    ? (info) => logWithTime("log", chalk.blue(`SSH2 Debug: ${info}`))
                     : undefined,
             });
     };
