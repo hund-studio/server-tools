@@ -84,8 +84,11 @@ program
     .argument("<connectionString>", "localport:sshhost:sshport")
     .requiredOption("-u, --user <user:password>", "user:password to access server")
     .option("-p, --port <number>", "public port to use on remote server")
-    .option("-d, --domain <domain>", "public domain to use on remote server")
     .option("-v, --verbose", "Enable verbose mode")
+    .option(
+        "-d, --domain <domain>",
+        "public domain to use on remote server, only available fot HTTP/HTTPS connections, not TCP"
+    )
     .action((connectionString, options) => {
         ssh2_tunnel(connectionString, {
             user: options["user"],
