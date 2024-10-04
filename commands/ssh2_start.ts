@@ -1,3 +1,4 @@
+import { logWithTime } from "../utils/log/logWithTime";
 import { nginx_add } from "../commands/nginx_add";
 import { Server, Session, utils } from "ssh2";
 import { timingSafeEqual } from "crypto";
@@ -16,10 +17,10 @@ const checkValue = (input: Buffer, allowed: Buffer) => {
     return !autoReject && isMatch;
 };
 
-export const ssh2_start = (options: { port?: number; user: string }) => {
+export const ssh2_start = (options: { port?: number; user: string; verbose: boolean }) => {
     const port = options["port"] || 4444;
     const [allowedUser, allowedPassword] = options["user"].split(":").map((i) => Buffer.from(i));
-    console.log(chalk.greenBright("Starting SSH2 server"));
+    logWithTime("info", chalk.greenBright("Starting SSH2 server"));
 
     if (allowedPubKey instanceof Error) {
         throw new Error();
@@ -30,7 +31,7 @@ export const ssh2_start = (options: { port?: number; user: string }) => {
             hostKeys: [keys["private"]],
         },
         (client) => {
-            console.log("Client connected!");
+            logWithTime("info", "Client connected!");
 
             let session: Session;
             let requestedPort: number;
@@ -71,7 +72,7 @@ export const ssh2_start = (options: { port?: number; user: string }) => {
                     else ctx.reject();
                 })
                 .on("ready", () => {
-                    console.log("Client authenticated!");
+                    logWithTime("info", "Client authenticated!");
 
                     client
                         .on("session", (accept, reject) => {
@@ -118,7 +119,7 @@ export const ssh2_start = (options: { port?: number; user: string }) => {
                                     // socket.setEncoding("utf8"); // remove to work with buffer (ae. Minecraft)
 
                                     socket.on("error", (error) => {
-                                        console.log("#1", error);
+                                        logWithTime("error", "#1", error);
                                     }); // DO not touch
 
                                     if (socket["remoteAddress"] && socket["remotePort"]) {
@@ -145,7 +146,7 @@ export const ssh2_start = (options: { port?: number; user: string }) => {
                                     .on("listening", () => {
                                         const address = server.address();
 
-                                        console.log("Starting");
+                                        logWithTime("info", "Starting");
 
                                         if (!address) {
                                             return close();
@@ -155,7 +156,7 @@ export const ssh2_start = (options: { port?: number; user: string }) => {
                                             return close();
                                         }
 
-                                        console.log(address["port"]);
+                                        logWithTime("info", "Requested port", address["port"]);
 
                                         requestedPort = address["port"];
                                     })
@@ -168,15 +169,15 @@ export const ssh2_start = (options: { port?: number; user: string }) => {
                         });
                 })
                 .on("error", (error) => {
-                    console.log("#2", error);
+                    logWithTime("error", "#2", error);
                 }) // DO not touch
                 .on("close", () => {
-                    console.log("Client disconnected");
+                    logWithTime("warn", "Client disconnected");
                     close();
                 });
         }
     ).listen(port, "0.0.0.0", () => {
-        console.log(chalk.greenBright("SSH2 server started on port", port));
+        logWithTime("info", chalk.greenBright("SSH2 server started on port", port));
     });
 };
 
