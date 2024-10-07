@@ -46,8 +46,8 @@ Find below a list of available/on progress/planned functionalities.
 
 This tool can be installed in two ways:
 
-- Cloning the repository and run it as a Node.js CLI tool (Node.js must be installed beforehand)
-- Using the prebuilt executable (No need to install Node.js beforehand)
+-   Cloning the repository and run it as a Node.js CLI tool (Node.js must be installed beforehand)
+-   Using the prebuilt executable (No need to install Node.js beforehand)
 
 Depending on which method you pick CLI tool should be used in a different way.
 
@@ -61,13 +61,13 @@ git clone https://github.com/hund-studio/server-tools.git
 
 To run the CLI tool you have two choices:
 
-- Using `ts-node` to directly run the `cli.ts` file:
+-   Using `ts-node` to directly run the `cli.ts` file:
 
 ```bash
 npx ts-node cli.ts
 ```
 
-- Create a js bundle with webpack `npx webpack` and run the budnled output:
+-   Create a js bundle with webpack `npx webpack` and run the budnled output:
 
 ```bash
 node dist/cli.js
@@ -93,9 +93,9 @@ the you can run it from anywhere as a normal program
 
 ### Prerequisites
 
-- ⚠️ This tool must be run from a sudo-privileged user due to Nginx limitations.
-  - On Ubuntu 24.04 LTS sudo seems no longer required.
-- ⚠️ This functionality has only been tested on Ubuntu.
+-   ⚠️ This tool must be run from a sudo-privileged user due to Nginx limitations.
+    -   On Ubuntu 24.04 LTS sudo seems no longer required.
+-   ⚠️ This functionality has only been tested on Ubuntu.
 
 #### Required deps
 
@@ -195,6 +195,7 @@ Valid arguments are:
 |     | `localPort`:`remoteSSHHost`:`remoteSSHHostPort`    | `TRUE`   | `-`     |
 | -u  | `user`:`password` combination to access the server | `TRUE`   | `-`     |
 | -p  | Remote target port                                 | `FALSE`  | `0`     |
+| -e  | External target port to expose using stream        | `FALSE`  | `-`     |
 | -d  | Domain to use for public access                    | `FALSE`  | `-`     |
 
 ##### SSH2 Server tunnel examples
@@ -222,7 +223,7 @@ npm run pkg
 ...that will execute a pkg.sh file to generate a Linux-ready executable (MacOS and Win versions of the script are not yet available).
 More information about this topic can be found at the following links:
 
-- [dev.to article](https://dev.to/chad_r_stewart/compile-a-single-executable-from-your-node-app-with-nodejs-20-and-esbuild-210j)
-- [Node.js API doc](https://nodejs.org/api/single-executable-applications.html#single-executable-application-creation-process)
-- [Node.js 21.7.0 release](https://nodejs.org/en/blog/release/v21.7.0)
-- [nodejs github repository about single-executables state of the art](https://github.com/nodejs/single-executable)
+-   [dev.to article](https://dev.to/chad_r_stewart/compile-a-single-executable-from-your-node-app-with-nodejs-20-and-esbuild-210j)
+-   [Node.js API doc](https://nodejs.org/api/single-executable-applications.html#single-executable-application-creation-process)
+-   [Node.js 21.7.0 release](https://nodejs.org/en/blog/release/v21.7.0)
+-   [nodejs github repository about single-executables state of the art](https://github.com/nodejs/single-executable)
