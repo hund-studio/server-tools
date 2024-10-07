@@ -22,6 +22,7 @@ Find below a list of available/on progress/planned functionalities.
 | Start an SSH tunnel server on your VPS         | ✅     |
 | Share local applications using prot forwarding | ✅     |
 | Serve forwarded applications usnder `https`    | ✅     |
+| Expose tunnels on specific external ports      | ✅     |
 
 ### Github autodeply
 
