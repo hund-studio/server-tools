@@ -2,9 +2,9 @@ import { join } from "path";
 import { rmSync } from "fs";
 import nginxConfig from "../utils/config/nginx";
 
-export const deleteVHost = async (domain: string) => {
+export const deleteStream = async (external: string) => {
     try {
-        const filePath = join(nginxConfig["vhosts"], `${domain}.conf`);
+        const filePath = join(nginxConfig["streams"], `${external}.conf`);
         rmSync(filePath);
         return true;
     } catch (error) {

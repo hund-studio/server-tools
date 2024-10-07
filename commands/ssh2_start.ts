@@ -4,6 +4,7 @@ import { Server, Session, utils } from "ssh2";
 import { timingSafeEqual } from "crypto";
 import chalk from "chalk";
 import net from "net";
+import { nginx_stream } from "./nginx_stream";
 
 const keys = utils.generateKeyPairSync("ed25519");
 const allowedPubKey = utils.parseKey(keys["public"]);
@@ -86,6 +87,12 @@ export const ssh2_start = (options: { port?: number; user: string; verbose: bool
                                 switch (command) {
                                     case "config_port":
                                         requestedPort = Number(arg);
+                                        stream.exit(0);
+                                        break;
+                                    case "config_external":
+                                        nginx_stream(arg, {
+                                            port: requestedPort,
+                                        });
                                         stream.exit(0);
                                         break;
                                     case "config_domain":

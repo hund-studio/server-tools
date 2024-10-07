@@ -84,16 +84,18 @@ program
     .argument("<connectionString>", "localport:sshhost:sshport")
     .requiredOption("-u, --user <user:password>", "user:password to access server")
     .option("-p, --port <number>", "public port to use on remote server")
-    .option("-v, --verbose", "Enable verbose mode")
     .option(
         "-d, --domain <domain>",
         "public domain to use on remote server, only available fot HTTP/HTTPS connections, not TCP"
     )
+    .option("-e, --external <port>", "server port to use to create a stream proxy")
+    .option("-v, --verbose", "Enable verbose mode")
     .action((connectionString, options) => {
         ssh2_tunnel(connectionString, {
-            user: options["user"],
-            remotePort: options["port"] && Number(options["port"]),
+            externalPort: options["external"] && Number(options["external"]),
             publicDomain: options["domain"],
+            remotePort: options["port"] && Number(options["port"]),
+            user: options["user"],
             verbose: options["verbose"] || false,
         });
     });

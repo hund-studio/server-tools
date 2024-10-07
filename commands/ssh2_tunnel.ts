@@ -12,7 +12,13 @@ const reconnectionOptions: {
 
 export const ssh2_tunnel = (
     connectionString: string,
-    options: { user: string; remotePort?: number; publicDomain?: string; verbose: boolean }
+    options: {
+        externalPort?: number;
+        publicDomain?: string;
+        remotePort?: number;
+        user: string;
+        verbose: boolean;
+    }
 ) => {
     const remotePort = options["remotePort"] || 0;
     const [localPort, remoteHost, remoteHostPort] = connectionString.split(":").map((i) => i);
@@ -79,7 +85,25 @@ export const ssh2_tunnel = (
                             }
                         );
                     }
+
+                    if (options["externalPort"]) {
+                        connection.exec(
+                            `config_external ${options["externalPort"]}`,
+                            (error, channel) => {
+                                if (error) throw error;
+
+                                channel.on("data", (data: string) => {
+                                    logWithTime("log", "Serving on external", data.toString());
+                                });
+                            }
+                        );
+                    }
                 });
+
+                // This is a tmp workaround
+                setInterval(() => {
+                    sendHeartbeat(connection);
+                }, 10000);
             })
             .on("tcp connection", (info, accept, reject) => {
                 const remoteConnection = accept();
@@ -108,6 +132,10 @@ export const ssh2_tunnel = (
                 logWithTime("warn", chalk.yellow("Connection ended by remote server"));
                 attemptReconnect();
             })
+            .on("close", () => {
+                logWithTime("warn", chalk.yellow("Connection closed by remote server"));
+                attemptReconnect();
+            })
             .connect({
                 host: remoteHost,
                 port: Number(remoteHostPort),
@@ -116,6 +144,9 @@ export const ssh2_tunnel = (
                 debug: options["verbose"]
                     ? (info) => logWithTime("log", chalk.blue(`SSH2 Debug: ${info}`))
                     : undefined,
+                // This is a tmp workaround
+                keepaliveInterval: 10000,
+                keepaliveCountMax: 3,
             });
     };
 
@@ -129,6 +160,24 @@ export const ssh2_tunnel = (
             connect();
         }, reconnectionOptions["delay"]);
     };
+
+    // This is a tmp workaround
+    function sendHeartbeat(connection: Client) {
+        connection.exec('echo "heartbeat"', (error, stream) => {
+            if (error) {
+                logWithTime("error", "Connection lost:", error);
+                attemptReconnect();
+            } else {
+                stream
+                    .on("close", () => {
+                        logWithTime("info", "Heartbeat successful");
+                    })
+                    .on("data", (data: any) => {
+                        logWithTime("log", "Heartbeat response:", data.toString());
+                    });
+            }
+        });
+    }
 
     connect();
 };
