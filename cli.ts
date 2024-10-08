@@ -1,9 +1,10 @@
-import { program } from "commander";
-import { ssh2_start } from "./commands/ssh2_start";
+import { nginx_add } from "./commands/nginx_add";
 import { nginx_start } from "./commands/nginx_start";
 import { nginx_stop } from "./commands/nginx_stop";
-import { nginx_add } from "./commands/nginx_add";
+import { program } from "commander";
+import { ssh2_start } from "./commands/ssh2_start";
 import { ssh2_tunnel } from "./commands/ssh2_tunnel";
+import chalk from "chalk";
 import packageJson from "./package.json";
 
 program
@@ -64,10 +65,10 @@ program
  */
 
 program
-    .command("ssh2:start")
-    .description("start an SSH2 server to handle reverse port forwarding")
+    .command("ssh:start")
+    .description("start an SSH server to handle reverse port forwarding")
     .requiredOption("-u, --user <user:password>", "user:password to access server")
-    .option("-p, --port <number>", "SSH2 server port")
+    .option("-p, --port <number>", "SSH server port")
     .option("-v, --verbose", "Enable verbose mode")
     .action((options) => {
         // Maybe some zod validation would be nice
@@ -79,17 +80,14 @@ program
     });
 
 program
-    .command("ssh2:tunnel")
-    .description("start an SSH2 tunnel")
-    .argument("<connectionString>", "localport:sshhost:sshport")
-    .requiredOption("-u, --user <user:password>", "user:password to access server")
-    .option("-p, --port <number>", "public port to use on remote server")
-    .option(
-        "-d, --domain <domain>",
-        "public domain to use on remote server, only available fot HTTP/HTTPS connections, not TCP"
-    )
-    .option("-e, --external <port>", "server port to use to create a stream proxy")
-    .option("-v, --verbose", "Enable verbose mode")
+    .command("ssh:tunnel")
+    .description("Start an SSH tunnel from your local port to a remote SSH server")
+    .argument("<connectionString>", "Specify in the format: localport:sshhost:sshport")
+    .requiredOption("-u, --user <user:password>", "User credentials in the format user:password for remote SSH access")
+    .option("-d, --domain <domain>", "Public domain name to bind on the remote server")
+    .option("-p, --port <remotePort>", "Remote port the SSH server should use")
+    .option("-s, --stream <port>", "Port number to use as a streaming proxy")
+    .option("-v, --verbose", "Enable verbose logging")
     .action((connectionString, options) => {
         ssh2_tunnel(connectionString, {
             externalPort: options["external"] && Number(options["external"]),
@@ -98,6 +96,34 @@ program
             user: options["user"],
             verbose: options["verbose"] || false,
         });
+    });
+
+program
+    .command("ssh:tunnel:examples")
+    .description("Show usage examples for the ssh:tunnel command")
+    .action(() => {
+        console.log(`
+Usage Examples:
+
+1.  Basic tunnel setup from local port 3000 to remote SSH server:
+    ${chalk.greenBright('ssh:tunnel 3000:remotehost.com:22 -u username:password')}
+
+2.  Tunnel with a specific public domain and remote port:
+    ${chalk.greenBright('ssh:tunnel 3000:remotehost.com:22 -u username:password -d example.com -p 2222')}
+
+3.  Tunnel with a streaming proxy on port 25565:
+    ${chalk.greenBright('ssh:tunnel 25565:remotehost.com:22 -u username:password -s 25565')}
+
+4.  Tunnel with verbose logging enabled:
+    ${chalk.greenBright('ssh:tunnel 3000:remotehost.com:22 -u username:password -v')}
+
+5.  Tunnel using a non-default SSH port (e.g., 4242 instead of 22):
+    ${chalk.greenBright('ssh:tunnel 3000:remotehost.com:4242 -u username:password')}
+
+${chalk.magentaBright(`Note:
+- Make sure the <connectionString> follows the format: localport:sshhost:sshport
+- Use the -v option to enable verbose output for debugging purposes.`)}
+`);
     });
 
 program.parse();
