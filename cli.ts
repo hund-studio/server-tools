@@ -6,6 +6,7 @@ import { ssh2_start } from "./commands/ssh2_start";
 import { ssh2_tunnel } from "./commands/ssh2_tunnel";
 import chalk from "chalk";
 import packageJson from "./package.json";
+import z from 'zod'
 
 program
     .name(packageJson["name"])
@@ -17,7 +18,7 @@ program
  */
 
 program
-    .command("nginx:start")
+    .command("snginx:start")
     .description("Start a LOCAL Nginx server, if not present it will be installed")
     .action(() => {
         nginx_start();
@@ -66,16 +67,29 @@ program
 
 program
     .command("ssh:start")
-    .description("start an SSH server to handle reverse port forwarding")
-    .requiredOption("-u, --user <user:password>", "user:password to access server")
-    .option("-p, --port <number>", "SSH server port")
-    .option("-v, --verbose", "Enable verbose mode")
+    .description("Start an SSH server to handle reverse port forwarding")
+    .requiredOption("-u, --user <user:password>", "User credentials in the format user:password for SSH server access")
+    .option("-p, --port <port>", "Port for the SSH server (default is 22)")
+    .option("-v, --verbose", "Enable verbose logging")
     .action((options) => {
-        // Maybe some zod validation would be nice
+        const schema = z.object({
+            user: z.string().regex(/^[^:]+:[^:]+$/, "Invalid format for user:password"),
+            port: z.string().optional().transform((port) => port ? Number(port) : 22).refine((port) => port > 0 && port < 65536, {
+                message: "Port must be a valid number between 1 and 65535",
+            }),
+            verbose: z.boolean().optional(),
+        });
+
+        const validationResult = schema.safeParse(options);
+        if (!validationResult['success']) {
+            console.error(chalk.redBright("Validation failed:", validationResult['error']['errors']));
+            process.exit(1);
+        }
+
         ssh2_start({
-            port: options["port"] && Number(options["port"]),
-            user: options["user"],
-            verbose: options["verbose"] || false,
+            port: validationResult['data']['port'],
+            user: validationResult['data']['user'],
+            verbose: validationResult['data']['verbose'] || false,
         });
     });
 

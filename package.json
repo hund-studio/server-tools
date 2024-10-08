@@ -40,6 +40,7 @@
 		"commander": "^12.0.0",
 		"express": "^4.18.3",
 		"ssh2": "^1.16.0",
-		"string-template": "^1.0.0"
+		"string-template": "^1.0.0",
+		"zod": "^3.23.8"
 	}
 }
