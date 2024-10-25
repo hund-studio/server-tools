@@ -14,7 +14,7 @@ server {
 
     ssl_certificate {sslDir}/live/{domain}/fullchain.pem;
     ssl_certificate_key {sslDir}/live/{domain}/privkey.pem;
-    
+
     ssl_session_cache shared:le_nginx_SSL:10m;
     ssl_session_timeout 1440m;
     ssl_session_tickets off;

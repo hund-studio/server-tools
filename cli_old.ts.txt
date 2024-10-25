@@ -3,11 +3,10 @@ import { nginx_start } from "./commands/nginx_start";
 import { nginx_stop } from "./commands/nginx_stop";
 import { program } from "commander";
 import { ssh2_start } from "./commands/ssh2_start";
-import { Worker } from "worker_threads";
+import { ssh2_tunnel } from "./commands/ssh2_tunnel";
 import chalk from "chalk";
 import packageJson from "./package.json";
 import z from "zod";
-import { getWorkerFile } from "./utils/getWorkerFile";
 
 program
     .name(packageJson["name"])
@@ -19,7 +18,7 @@ program
  */
 
 program
-    .command("nginx:start")
+    .command("snginx:start")
     .description("Start a LOCAL Nginx server, if not present it will be installed")
     .action(() => {
         nginx_start();
@@ -44,12 +43,8 @@ program
         "if template supports it, it can be used to specify a port inside the template (ae. reverse proxies)"
     )
     .option(
-        "-d, --webroot <path>",
-        "if template supports it, it can be used to specify the web root path inside the template"
-    )
-    .option(
-        "-r, --redirect <redirectDomain>",
-        "specify a domain to redirect to (e.g., redirect from www to non-www or vice versa)"
+        "-r, --root <path>",
+        "if template supports it, it can be used to specify the root path inside the template"
     )
     .action((domain, options) => {
         if (["next-js", "nodejs", "websocket"].includes(options["template"]) && !options["port"]) {
@@ -62,8 +57,7 @@ program
         nginx_add(domain, {
             template: options["template"],
             port: options["port"],
-            webroot: options["webroot"],
-            redirects: options["redirect"].split(" "),
+            root: options["root"],
         });
     });
 
@@ -121,37 +115,12 @@ program
     .option("-s, --stream <port>", "Port number to use as a streaming proxy")
     .option("-v, --verbose", "Enable verbose logging")
     .action((connectionString, options) => {
-        const workerFile = getWorkerFile("workers/ssh_tunnel.js");
-        const worker = new Worker(workerFile);
-
-        worker.postMessage({
-            connectionString,
-            options: {
-                externalPort: options["external"] && Number(options["external"]),
-                publicDomain: options["domain"],
-                remotePort: options["port"] && Number(options["port"]),
-                user: options["user"],
-                verbose: options["verbose"] || false,
-            },
-        });
-
-        worker.on("message", (message) => {
-            console.log(`Worker message: ${JSON.stringify(message)}`);
-            if (message.status === "completed") {
-                console.log("SSH tunnel operation completed");
-            }
-        });
-
-        worker.on("error", (err) => {
-            console.error("Worker encountered an error:", err);
-        });
-
-        worker.on("exit", (code) => {
-            if (code !== 0) {
-                console.error(`Worker stopped with exit code ${code}`);
-            } else {
-                console.log("Worker exited successfully");
-            }
+        ssh2_tunnel(connectionString, {
+            externalPort: options["external"] && Number(options["external"]),
+            publicDomain: options["domain"],
+            remotePort: options["port"] && Number(options["port"]),
+            user: options["user"],
+            verbose: options["verbose"] || false,
         });
     });
 

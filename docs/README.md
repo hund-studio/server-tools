@@ -20,11 +20,11 @@ Find below a list of available/on progress/planned functionalities.
 | Functionality                                  | Status |
 | :--------------------------------------------- | :----- |
 | Start an SSH tunnel server on your VPS         | ✅     |
-| Share local applications using prot forwarding | ✅     |
-| Serve forwarded applications usnder `https`    | ✅     |
+| Share local applications using port forwarding | ✅     |
+| Serve forwarded applications under `https`     | ✅     |
 | Expose tunnels on specific external ports      | ✅     |
 
-### Github autodeply
+### Github autodeploy
 
 | Functionality                                    | Status |
 | :----------------------------------------------- | :----- |
@@ -34,7 +34,7 @@ Find below a list of available/on progress/planned functionalities.
 
 | Functionality                                                   | Status |
 | :-------------------------------------------------------------- | :----- |
-| Check id domain DNS are correct before issuing SSL cert         | ❌     |
+| Check if domain DNS are correct before issuing SSL cert         | ❌     |
 | Add custom HTML error pages for paused/non-working applications | ❌     |
 
 ### Known issues
@@ -50,7 +50,7 @@ This tool can be installed in two ways:
 -   Cloning the repository and run it as a Node.js CLI tool (Node.js must be installed beforehand)
 -   Using the prebuilt executable (No need to install Node.js beforehand)
 
-Depending on which method you pick CLI tool should be used in a different way.
+Depending on which method you pick, the CLI tool should be used in a different way.
 
 ### Clone the repository
 
@@ -68,7 +68,7 @@ To run the CLI tool you have two choices:
 npx ts-node cli.ts
 ```
 
--   Create a js bundle with webpack `npx webpack` and run the budnled output:
+-   Create a js bundle with webpack `npx webpack` and run the bundled output:
 
 ```bash
 node dist/cli.js
@@ -84,7 +84,7 @@ To run the CLI executable you must add run permissions on file:
 chmod +x server-tools
 ```
 
-the you can run it from anywhere as a normal program
+Then you can run it from anywhere as a normal program
 
 ```bash
 ./server-tools
@@ -98,9 +98,9 @@ the you can run it from anywhere as a normal program
     -   On Ubuntu 24.04 LTS sudo seems no longer required.
 -   ⚠️ This functionality has only been tested on Ubuntu.
 
-#### Required deps
+#### Required dependencies
 
-When using the Nginx `start` command you might need the following dependencies in order to compile it from source.
+When using the Nginx `start` command, you might need the following dependencies in order to compile it from source.
 
 ```bash
 sudo apt update -y && sudo apt-get install git build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev libgd-dev libxml2 libxml2-dev uuid-dev
@@ -108,7 +108,7 @@ sudo apt update -y && sudo apt-get install git build-essential libpcre3 libpcre3
 
 ### Install and Start
 
-When starting the server a procedure will check if there is need to install Nginx and other required tools.
+When starting the server a procedure will check if there is a need to install Nginx and other required tools.
 
 ```bash
 ./server-tools nginx:start
@@ -124,7 +124,7 @@ Stop the Nginx server.
 
 ### Add
 
-Add command can be used to add an Nginx vhost with some premade templates.
+The `add` command can be used to add an Nginx vhost with some premade templates.
 Valid arguments are:
 
 | Arg | Description                          | Required | Default   |
@@ -132,11 +132,12 @@ Valid arguments are:
 |     | domain for the vhost                 | `TRUE`   | `-`       |
 | -t  | Template name that you want to use   | `FALSE`  | `default` |
 | -p  | Port if template supports it         | `FALSE`  | `-`       |
-| -r  | Webroot path if template supports it | `FALSE`  | `html`    |
+| -d  | Webroot path if template supports it | `FALSE`  | `html`    |
+| -r  | Redirect domain                      | `FALSE`  | `-`       |
 
 #### Examples
 
-Add a vhost to reverse proxy a next.js application running on port `3001` to domain `http://sample.hund.studio`.
+Add a vhost to reverse proxy a Next.js application running on port `3001` to domain `http://sample.hund.studio`.
 
 ```bash
 ./server-tools nginx:add sample.hund.studio -t next-js -p 3001
@@ -145,36 +146,36 @@ Add a vhost to reverse proxy a next.js application running on port `3001` to dom
 Add a vhost to serve files inside `/home/ubuntu/sample.hund.studio` on `https://sample.hund.studio`
 
 ```bash
-./server-tools  nginx:add sample.hund.studio -r /home/ubuntu/sample.hund.studio
+./server-tools nginx:add sample.hund.studio -d /home/ubuntu/sample.hund.studio
 ```
 
 ### SSL Certificate
 
-You need to install `certbot` on you server with `snap`.
+You need to install `certbot` on your server with `snap`.
 
-> certbot-auto script has been deprecated and `snap` is the suggested install method.
+> The certbot-auto script has been deprecated, and `snap` is the suggested install method.
 
 ```bash
 sudo snap install --classic certbot
 ```
 
-When installed Certifcate creation will be automatically handled on vhost setup.
+When installed, certificate creation will be automatically handled on vhost setup.
 
 ## SSH2
 
 ### SSH2 Server
 
-This SSH2 server is ready to handle local port forwarding and should be used in combination with `ssh2:tunnel` command.
+This SSH2 server is ready to handle local port forwarding and should be used in combination with the `ssh2:tunnel` command.
 
 #### SSH2 Server Start
 
-To start an SSH2 server.
-Valid arguments are:
+To start an SSH2 server. Valid arguments are:
 
-| Arg | Description                                        | Required | Default |
-| :-- | :------------------------------------------------- | :------- | :------ |
-| -u  | `user`:`password` combination to access the server | `TRUE`   | `-`     |
-| -p  | Port for the SSH2 server                           | `FALSE`  | `4444`  |
+| Arg | Description                                      | Required | Default |
+| :-- | :----------------------------------------------- | :------- | :------ |
+| -u  | `user:password` combination to access the server | `TRUE`   | `-`     |
+| -p  | Port for the SSH2 server                         | `FALSE`  | `4444`  |
+| -v  | Enable verbose logging                           | `FALSE`  | `-`     |
 
 ##### SSH2 Server start examples
 
@@ -186,42 +187,42 @@ Start an SSH2 server on port `4242`:
 
 ### SSH2 Tunnel
 
-#### SSH2 Tunnel start
+#### SSH2 Tunnel Start
 
-To start an SSH2 server.
-Valid arguments are:
+To start an SSH2 tunnel. Valid arguments are:
 
-| Arg | Description                                        | Required | Default |
-| :-- | :------------------------------------------------- | :------- | :------ |
-|     | `localPort`:`remoteSSHHost`:`remoteSSHHostPort`    | `TRUE`   | `-`     |
-| -u  | `user`:`password` combination to access the server | `TRUE`   | `-`     |
-| -p  | Remote target port                                 | `FALSE`  | `0`     |
-| -e  | External target port to expose using stream        | `FALSE`  | `-`     |
-| -d  | Domain to use for public access                    | `FALSE`  | `-`     |
+| Arg | Description                                      | Required | Default |
+| :-- | :----------------------------------------------- | :------- | :------ |
+|     | `localPort:remoteSSHHost:remoteSSHHostPort`      | `TRUE`   | `-`     |
+| -u  | `user:password` combination to access the server | `TRUE`   | `-`     |
+| -d  | Domain to use for public access                  | `FALSE`  | `-`     |
+| -p  | Remote target port                               | `FALSE`  | `0`     |
+| -s  | External target port to expose using stream      | `FALSE`  | `-`     |
+| -v  | Enable verbose logging                           | `FALSE`  | `-`     |
 
 ##### SSH2 Server tunnel examples
 
-Start an SSH2 tunnel of local port `3000` on remote port `4545` (if available):
+Start an SSH2 tunnel from local port `3000` on remote port `4545` (if available):
 
 ```bash
-./server-tools ssh2:tunnel 3000:127.0.0.1:4242 -- -u george:1a2b3c4d -p 4545
+./server-tools ssh2:tunnel 3000:127.0.0.1:4242 -u george:1a2b3c4d -p 4545
 ```
 
 Start an SSH2 tunnel of local port `3000` on domain `http(s)://sample.hund.studio`:
 
 ```bash
-./server-tools ssh2:tunnel 3000:127.0.0.1:4242 -- -p 3000 -d sample.hund.studio
+./server-tools ssh2:tunnel 3000:127.0.0.1:4242 -u george:1a2b3c4d -p 3000 -d sample.hund.studio
 ```
 
 ## How to build the executable
 
-Preparing executalbe files in Node it is still an experimental practice. You can prepare the executable with the npm script:
+Preparing executable files in Node is still an experimental practice. You can prepare the executable with the npm script:
 
 ```
 npm run pkg
 ```
 
-...that will execute a pkg.sh file to generate a Linux-ready executable (MacOS and Win versions of the script are not yet available).
+...that will execute a `pkg.sh` file to generate a Linux-ready executable (MacOS and Win versions of the script are not yet available).
 More information about this topic can be found at the following links:
 
 -   [dev.to article](https://dev.to/chad_r_stewart/compile-a-single-executable-from-your-node-app-with-nodejs-20-and-esbuild-210j)

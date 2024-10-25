@@ -7,19 +7,34 @@ import chalk from "chalk";
 
 export const nginx_add = async (
     domain: string,
-    options: { template?: string; port?: number | string; root?: string }
+    options: { template?: string; port?: number | string; webroot?: string; redirects?: string[] }
 ) => {
     /* */
     console.log(chalk.magentaBright("=== START ==="));
 
+    const domainsToHandle = [domain, ...(options["redirects"] || [])];
+
     /* */
-    await deleteVHost(domain);
-    await deleteCert(domain);
+    for (const domain of domainsToHandle) {
+        await deleteVHost(domain);
+        await deleteCert(domain);
+    }
+
     await reloadNginx();
 
     /* */
     console.log(chalk.greenBright(`Trying issuing certificate for ${domain}...`));
-    const isIssued = await issueCert(domain);
+    const isIssued = await (async () => {
+        let issued: string | boolean = true;
+        for (const domain of domainsToHandle) {
+            issued = await issueCert(domain);
+            if (issued !== true) {
+                break;
+            }
+        }
+        return issued;
+    })();
+
     if (isIssued !== true) {
         if (typeof isIssued === "string") {
             console.log(chalk.red(isIssued));
@@ -35,9 +50,11 @@ export const nginx_add = async (
         domain,
         options["template"],
         String(options["port"]),
-        options["root"],
-        isIssued === true
+        options["webroot"],
+        isIssued === true,
+        options["redirects"]
     );
+
     if (createdVHost !== true) {
         if (typeof createdVHost === "string") {
             console.log(chalk.red(createdVHost));

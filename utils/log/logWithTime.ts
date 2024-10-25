@@ -1,11 +1,12 @@
 import { writeToFile } from "./writeToFile";
 import ssh2Config from "../config/ssh2";
+import chalk, { Chalk } from "chalk";
 
-const logPrefixes = {
-    error: "[Error]",
-    warn: "[Warn ]",
-    info: "[Info ]",
-    log: "[Log  ]",
+const logStates: Record<string, [string, Chalk]> = {
+    error: ["[Error]", chalk.redBright],
+    warn: ["[Warn ]", chalk.yellow],
+    info: ["[Info ]", chalk.white],
+    log: ["[Log  ]", chalk.blue],
 };
 
 const formatDate = (date: Date, format = "dd-mm-yyyy hh:ii:ss") => {
@@ -25,14 +26,18 @@ const formatDate = (date: Date, format = "dd-mm-yyyy hh:ii:ss") => {
 };
 
 export const logWithTime = (
-    type: keyof typeof logPrefixes,
+    type: keyof typeof logStates,
     message?: any,
     ...optionalParams: any[]
 ) => {
+    const [prefix, color] = logStates[type]
+    const line = [message, ...optionalParams].join(" ");
+    const timestamp = `[${formatDate(new Date())}]`
     const today = formatDate(new Date(), "yyyy-mm-dd");
-    const line = [`[${formatDate(new Date())}]`, message, ...optionalParams].join(" ");
-    console.log(logPrefixes[type], line);
+
+    console.log(timestamp, color(prefix, line));
+
     if (type !== "log") {
-        writeToFile(`${ssh2Config["logs"]}/${today}.txt`, line);
+        writeToFile(`${ssh2Config["logs"]}/${today}.txt`, [timestamp, prefix, line].join(' '));
     }
 };

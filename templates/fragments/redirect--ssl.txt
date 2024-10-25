@@ -1,0 +1,10 @@
+server {
+    listen 80;
+    listen 443 ssl;
+    server_name {redirectDomain};
+
+    ssl_certificate {sslDir}/live/{redirectDomain}/fullchain.pem;
+    ssl_certificate_key {sslDir}/live/{redirectDomain}/privkey.pem;
+
+    return 301 https://{domain}$request_uri;
+}

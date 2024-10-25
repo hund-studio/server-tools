@@ -1,0 +1,10 @@
+server {
+    listen 80;
+    server_name {redirectDomain};
+
+    if ($host = {domain}) {
+        return 301 https://{domain}$request_uri;
+    }
+
+    return 404;
+}

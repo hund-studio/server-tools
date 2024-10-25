@@ -1,183 +1,145 @@
 import { Client } from "ssh2";
-import { logWithTime } from "../utils/log/logWithTime";
-import chalk from "chalk";
 import net from "net";
 
-const reconnectionOptions: {
-    delay: number;
-    timeout?: NodeJS.Timeout;
-} = {
-    delay: 2000,
-};
+export interface SSHClientOptions {
+    externalPort?: number;
+    publicDomain?: string;
+    remotePort?: number;
+    user: string;
+    verbose: boolean;
+}
 
-export const ssh2_tunnel = (
-    connectionString: string,
-    options: {
-        externalPort?: number;
-        publicDomain?: string;
-        remotePort?: number;
-        user: string;
-        verbose: boolean;
-    }
-) => {
-    const remotePort = options["remotePort"] || 0;
-    const [localPort, remoteHost, remoteHostPort] = connectionString.split(":").map((i) => i);
-    const [allowedUser, allowedPassword] = options["user"].split(":").map((i) => i);
-    logWithTime("info", chalk.greenBright("Starting SSH2 tunnel"));
+// @todo = usare la stessa di ssh2_start
+interface ClientOptions {
+    requestedPort: null | number;
+    externalPort: null | number;
+    domain: null | string;
+}
+
+export const ssh2_tunnel = (connectionString: string, options: SSHClientOptions) => {
+    const maxRetries = 5;
+    let retryCount = 0;
 
     const connect = () => {
-        clearTimeout(reconnectionOptions["timeout"]);
-        const connection = new Client();
+        try {
+            const client = new Client();
+            const [portFrom, sshHost, sshPort] = connectionString.split(":");
+            const [allowedUser, allowedPassword] = options["user"].split(":");
+            const clientOptions: ClientOptions = {
+                externalPort: options["externalPort"] || null,
+                domain: options["publicDomain"] || null,
+                requestedPort: options["remotePort"] || 0,
+            };
 
-        connection
-            .on("ready", () => {
-                logWithTime("info", chalk.greenBright("SSH2 tunnel started"));
-                connection.exec(`config_port ${remotePort}`, (error, channel) => {
-                    if (error) throw error;
+            client.on("ready", () => {
+                client.exec(`config_port ${clientOptions["requestedPort"]}`, (error, channel) => {
+                    if (error) {
+                        throw new Error(error["message"]);
+                    }
 
+                    // @todo = controllare questo type string
+                    // @audit = questo probabilmente non serve
                     channel.on("data", (data: string) => {
-                        logWithTime(
-                            "info",
-                            chalk.greenBright(
-                                "Your service is running on remote port",
-                                data.toString()
-                            )
-                        );
+                        // @todo implement response message
                     });
 
-                    connection.forwardIn("127.0.0.1", Number(localPort), (error) => {
+                    /**
+                     * Start data forwarding
+                     */
+                    client.forwardIn("127.0.0.1", Number(portFrom), (error) => {
                         if (error) {
-                            logWithTime("error", chalk.red("Error occurred:", error));
-                            throw error;
+                            throw new Error(error["message"]);
                         }
 
-                        logWithTime(
-                            "info",
-                            chalk.greenBright(
-                                "Listening for connections on server on port",
-                                localPort
-                            )
-                        );
+                        /**
+                         * Check which port has been assigned from server
+                         */
+                        client.exec("request_port", (error, channel) => {
+                            if (error) {
+                                throw new Error(error["message"]);
+                            }
 
-                        connection.exec("request_port", (error, channel) => {
-                            if (error) throw error;
-                            channel.on("data", (data: string) => {
-                                logWithTime(
-                                    "info",
-                                    chalk.greenBright(
-                                        "Your service is running on remote port",
-                                        data.toString()
-                                    )
-                                );
+                            channel.on("data", (data: any) => {
+                                console.log("Assigned:", data.toString());
                             });
                         });
+
+                        /**
+                         * If domain is set create a new NGINX vHost
+                         */
+                        if (clientOptions["domain"]) {
+                            client.exec("config_domain", (error, channel) => {
+                                if (error) {
+                                    throw new Error(error["message"]);
+                                }
+
+                                channel.on("data", (data: any) => {
+                                    console.log("Domain:", data.toString());
+                                });
+                            });
+                        }
+
+                        /**
+                         * If external port is set create a new NGINX stream configuration
+                         */
+                        if (clientOptions["externalPort"]) {
+                            client.exec("config_external", (error, channel) => {
+                                if (error) {
+                                    throw new Error(error["message"]);
+                                }
+
+                                channel.on("data", (data: any) => {
+                                    console.log("External:", data.toString());
+                                });
+                            });
+                        }
                     });
-
-                    if (options["publicDomain"]) {
-                        connection.exec(
-                            `config_domain ${options["publicDomain"]}`,
-                            (error, channel) => {
-                                if (error) throw error;
-
-                                channel.on("data", (data: string) => {
-                                    logWithTime("log", "Serving on domain", data.toString());
-                                });
-                            }
-                        );
-                    }
-
-                    if (options["externalPort"]) {
-                        connection.exec(
-                            `config_external ${options["externalPort"]}`,
-                            (error, channel) => {
-                                if (error) throw error;
-
-                                channel.on("data", (data: string) => {
-                                    logWithTime("log", "Serving on external", data.toString());
-                                });
-                            }
-                        );
-                    }
                 });
+            });
 
-                // This is a tmp workaround
-                setInterval(() => {
-                    sendHeartbeat(connection);
-                }, 10000);
-            })
-            .on("tcp connection", (info, accept, reject) => {
+            client.on("tcp connection", (info, accept, reject) => {
                 const remoteConnection = accept();
-                const localConnection = net.createConnection(Number(localPort), "127.0.0.1", () => {
+                const localConnection = net.createConnection(Number(portFrom), "127.0.0.1", () => {
                     remoteConnection.pipe(localConnection);
                     localConnection.pipe(remoteConnection);
                 });
+            });
 
-                localConnection.on("error", (error) => {
-                    logWithTime(
-                        "error",
-                        chalk.red("Error connecting to local server:", error.message)
-                    );
-                    remoteConnection.end();
-                    logWithTime(
-                        "warn",
-                        chalk.yellow("Sent an error response and closed remote connection")
-                    );
-                });
-            })
-            .on("error", (error) => {
-                logWithTime("error", chalk.red("Error occurred:", error.message));
-                attemptReconnect();
-            })
-            .on("end", () => {
-                logWithTime("warn", chalk.yellow("Connection ended by remote server"));
-                attemptReconnect();
-            })
-            .on("close", () => {
-                logWithTime("warn", chalk.yellow("Connection closed by remote server"));
-                attemptReconnect();
-            })
-            .connect({
-                host: remoteHost,
-                port: Number(remoteHostPort),
+            client.on("error", (err) => {
+                console.error("SSH client error:", err);
+                retryConnection();
+            });
+
+            client.on("close", () => {
+                console.log("SSH client disconnected");
+                retryConnection();
+            });
+
+            client.connect({
+                host: sshHost,
+                port: Number(sshPort),
                 username: allowedUser,
                 password: allowedPassword,
-                debug: options["verbose"]
-                    ? (info) => logWithTime("log", chalk.blue(`SSH2 Debug: ${info}`))
-                    : undefined,
-                // This is a tmp workaround
-                keepaliveInterval: 10000,
-                keepaliveCountMax: 3,
+                debug: options["verbose"] ? console.log : undefined,
             });
+        } catch (error) {
+            console.error("Connection error:", error);
+            retryConnection();
+        }
     };
 
-    const attemptReconnect = () => {
-        logWithTime(
-            "warn",
-            chalk.yellow(`Reconnecting in ${reconnectionOptions["delay"] / 1000} seconds...`)
-        );
-        reconnectionOptions["timeout"] = setTimeout(() => {
-            logWithTime("info", chalk.greenBright("Reconnecting SSH2 tunnel..."));
-            connect();
-        }, reconnectionOptions["delay"]);
+    const retryConnection = () => {
+        if (retryCount < maxRetries) {
+            retryCount++;
+            const retryDelay = Math.pow(2, retryCount) * 1000;
+            console.log(`Retrying connection in ${retryDelay / 1000} seconds...`);
+            setTimeout(() => {
+                connect();
+            }, retryDelay);
+        } else {
+            console.error("Max retries reached. Unable to reconnect.");
+        }
     };
-
-    // This is a tmp workaround
-    function sendHeartbeat(connection: Client) {
-        connection.exec('echo "heartbeat"', (error, stream) => {
-            if (error) {
-                logWithTime("error", "Connection lost:", error);
-                attemptReconnect();
-            } else {
-                stream
-                    .on("close", () => {
-                        logWithTime("info", "Heartbeat successful");
-                    })
-                    .on("data", (data: any) => {
-                        logWithTime("log", "Heartbeat response:", data.toString());
-                    });
-            }
-        });
-    }
 
     connect();
 };

@@ -2,6 +2,11 @@
     "main": "./dist/cli.js",
     "output": "./dist/cli.blob",
     "assets": {
+        "templates/fragments/redirect.txt": "./templates/fragments/redirect.txt",
+        "templates/fragments/redirect--ssl.txt": "./templates/fragments/redirect--ssl.txt",
+
+        "workers/ssh_tunnel.js": "./dist/workers/ssh_tunnel.js",
+
         "default.txt": "./templates/default.txt",
         "default--ssl.txt": "./templates/default--ssl.txt",
 
