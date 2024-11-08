@@ -1,6 +1,6 @@
-import { logWithTime } from "../../utils/log/logWithTime";
-import { nginx_add } from "../nginx_add";
-import { nginx_stream } from "../nginx_stream";
+import { logWithTime } from "../../../utils/log/logWithTime";
+import { nginx_add } from "../../nginx_add";
+import { nginx_stream } from "../../nginx_stream";
 import { timingSafeEqual } from "crypto";
 import chalk from "chalk";
 import net from "net";

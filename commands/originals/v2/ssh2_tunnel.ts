@@ -37,12 +37,63 @@ export const ssh2_tunnel = (connectionString: string, options: SSHClientOptions)
                         throw new Error(error["message"]);
                     }
 
+                    // @todo = controllare questo type string
+                    // @audit = questo probabilmente non serve
                     channel.on("data", (data: string) => {
-                        console.log("Config port response:", data.toString());
+                        // @todo implement response message
                     });
 
-                    // Avvia il port forwarding
-                    startForwarding(client);
+                    /**
+                     * Start data forwarding
+                     */
+                    client.forwardIn("127.0.0.1", Number(portFrom), (error) => {
+                        if (error) {
+                            throw new Error(error["message"]);
+                        }
+
+                        /**
+                         * Check which port has been assigned from server
+                         */
+                        client.exec("request_port", (error, channel) => {
+                            if (error) {
+                                throw new Error(error["message"]);
+                            }
+
+                            channel.on("data", (data: any) => {
+                                console.log("Assigned:", data.toString());
+                            });
+                        });
+
+                        /**
+                         * If domain is set create a new NGINX vHost
+                         */
+                        if (clientOptions["domain"]) {
+                            client.exec("config_domain", (error, channel) => {
+                                if (error) {
+                                    throw new Error(error["message"]);
+                                }
+
+                                channel.on("data", (data: any) => {
+                                    console.log("Domain:", data.toString());
+                                });
+                            });
+                        }
+
+                        /**
+                         * If external port is set create a new NGINX stream configuration
+                         */
+                        if (clientOptions["externalPort"]) {
+                            client.exec("config_external", (error, channel) => {
+                                if (error) {
+                                    throw new Error(error["message"]);
+                                }
+
+                                channel.on("data", (data: any) => {
+                                    console.log("External:", data.toString());
+                                });
+                            });
+                        }
+                    });
                 });
             });
 
@@ -75,51 +126,6 @@ export const ssh2_tunnel = (connectionString: string, options: SSHClientOptions)
             console.error("Connection error:", error);
             retryConnection();
         }
-    };
-
-    const startForwarding = (client: Client) => {
-        const [portFrom] = connectionString.split(":");
-
-        client.forwardIn("127.0.0.1", Number(portFrom), (error) => {
-            if (error) {
-                throw new Error(error["message"]);
-            }
-            console.log("Port forwarding started on port:", portFrom);
-
-            // Inizia a controllare periodicamente lo stato del forwarding
-            setInterval(checkForwardingStatus, 10000, client);
-        });
-    };
-
-    const checkForwardingStatus = (client: Client) => {
-        const [portFrom] = connectionString.split(":");
-
-        const testConnection = net.createConnection(Number(portFrom), "127.0.0.1");
-
-        testConnection.on("connect", () => {
-            console.log("Forwarding is active.");
-            testConnection.end();
-        });
-
-        testConnection.on("error", () => {
-            console.log("Forwarding interrupted. Attempting to re-establish...");
-            retryForwarding(client);
-        });
-    };
-
-    const retryForwarding = (client: Client) => {
-        const [portFrom] = connectionString.split(":");
-
-        setTimeout(() => {
-            client.forwardIn("127.0.0.1", Number(portFrom), (error) => {
-                if (error) {
-                    console.error("Retrying forwarding failed:", error);
-                    retryForwarding(client);
-                } else {
-                    console.log("Forwarding re-established");
-                }
-            });
-        }, 5000);
     };
 
     const retryConnection = () => {

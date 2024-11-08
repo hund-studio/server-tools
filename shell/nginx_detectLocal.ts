@@ -4,13 +4,13 @@ import { accessSync, constants } from "fs";
 import { executeCommand } from "../utils/executeCommand";
 
 export const detectLocalNginx = async () => {
-	const nginxExecutablePath = join(nginxConfig["root"], "sbin", "nginx");
+    const nginxExecutablePath = join(nginxConfig["root"], "sbin", "nginx");
 
-	try {
-		accessSync(nginxExecutablePath, constants["X_OK"]);
-		await executeCommand(`${nginxExecutablePath} -v`);
-		return true;
-	} catch (error) {
-		return false;
-	}
+    try {
+        accessSync(nginxExecutablePath, constants["X_OK"]);
+        await executeCommand(`${nginxExecutablePath} -v`);
+        return true;
+    } catch (error) {
+        return false;
+    }
 };

@@ -1,26 +1,31 @@
 import chalk from "chalk";
 import { ExecOptions, exec } from "child_process";
 
-export const executeCommand = (command: string, options?: ExecOptions): Promise<void> => {
-	return new Promise((resolve, reject) => {
-		console.log(chalk.blueBright("Command: ", command));
+export const executeCommand = (command: string, options?: ExecOptions): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        console.log(chalk.blueBright("Command: ", command));
 
-		const childProcess = exec(command, options);
+        const childProcess = exec(command, options);
+        let output = "";
 
-		childProcess.stdout?.on("data", (data) => {
-			console.log(chalk.blackBright(data.toString().trim()));
-		});
+        childProcess.stdout?.on("data", (data) => {
+            const text = data.toString().trim();
+            output += text + "\n";
+            console.log(chalk.blackBright(text));
+        });
 
-		childProcess.stderr?.on("data", (data) => {
-			console.error(chalk.blackBright(data.toString().trim()));
-		});
+        childProcess.stderr?.on("data", (data) => {
+            const text = data.toString().trim();
+            output += text + "\n";
+            console.error(chalk.blackBright(text));
+        });
 
-		childProcess.on("exit", (code) => {
-			if (code === 0) {
-				resolve();
-			} else {
-				reject(new Error(`Command '${command}' failed with code ${code}`));
-			}
-		});
-	});
+        childProcess.on("exit", (code) => {
+            if (code === 0) {
+                resolve(output.trim());
+            } else {
+                reject(new Error(`Command '${command}' failed with code ${code}`));
+            }
+        });
+    });
 };

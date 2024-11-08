@@ -1,13 +1,13 @@
-import { getWorkerFile } from "./utils/getWorkerFile";
 import { nginx_add } from "./commands/nginx_add";
 import { nginx_start } from "./commands/nginx_start";
 import { nginx_stop } from "./commands/nginx_stop";
 import { program } from "commander";
-import { ssh_start } from "./commands/ssh_start";
+import { ssh2_start } from "./commands/ssh_start";
 import { Worker } from "worker_threads";
 import chalk from "chalk";
 import packageJson from "./package.json";
 import z from "zod";
+import { getWorkerFile } from "./utils/getWorkerFile";
 
 program
     .name(packageJson["name"])
@@ -101,13 +101,11 @@ program
             process.exit(1);
         }
 
-        // ssh2_start({
-        //     port: validationResult["data"]["port"],
-        //     user: validationResult["data"]["user"],
-        //     verbose: validationResult["data"]["verbose"] || false,
-        // });
-
-        ssh_start();
+        ssh2_start({
+            port: validationResult["data"]["port"],
+            user: validationResult["data"]["user"],
+            verbose: validationResult["data"]["verbose"] || false,
+        });
     });
 
 program

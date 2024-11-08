@@ -1,5 +1,5 @@
 import { Client } from "ssh2";
-import { logWithTime } from "../../utils/log/logWithTime";
+import { logWithTime } from "../../../utils/log/logWithTime";
 import chalk from "chalk";
 import net from "net";
 
